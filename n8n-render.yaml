@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: ota-analyzer-n8n
+    env: docker
+    dockerfilePath: ./Dockerfile.n8n
+    envVars:
+      - key: N8N_BASIC_AUTH_ACTIVE
+        value: true
+      - key: N8N_BASIC_AUTH_USER
+        value: admin
+      - key: N8N_BASIC_AUTH_PASSWORD
+        sync: false
+      - key: N8N_ENCRYPTION_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: WEBHOOK_URL
+        value: https://ota-analyzer-n8n.onrender.com
+    healthCheckPath: /
+    autoDeploy: true 

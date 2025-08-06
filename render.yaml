@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: ota-analyzer-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_N8N_WEBHOOK_URL
+        sync: false
+      - key: VITE_OPENAI_API_KEY
+        sync: false
+      - key: VITE_APP_NAME
+        value: OTA Analyzer
+      - key: VITE_APP_URL
+        value: https://ota-analyzer-frontend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html 
