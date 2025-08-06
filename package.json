@@ -1,6 +1,7 @@
 {
   "name": "ota-analyzer-saas",
   "version": "1.0.0",
+  "type": "module",
   "description": "Full-featured SaaS app for OTA listing analysis with Vue 3, Supabase, and n8n",
   "scripts": {
     "dev": "vite",
