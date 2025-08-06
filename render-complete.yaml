@@ -1,0 +1,84 @@
+services:
+  # Frontend (Vue.js)
+  - type: web
+    name: ota-analyzer-frontend
+    env: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_N8N_WEBHOOK_URL
+        value: https://ota-analyzer-n8n.onrender.com/webhook/ota-analysis
+      - key: VITE_OPENAI_API_KEY
+        sync: false
+      - key: VITE_APP_NAME
+        value: OTA Analyzer
+      - key: VITE_APP_URL
+        value: https://ota-analyzer-frontend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # Backend API (Supabase Edge Functions)
+  - type: web
+    name: ota-analyzer-backend
+    env: node
+    buildCommand: npm ci
+    startCommand: npm start
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: N8N_WEBHOOK_URL
+        value: https://ota-analyzer-n8n.onrender.com/webhook/ota-analysis
+      - key: PORT
+        value: 10000
+    healthCheckPath: /health
+
+  # n8n Automation
+  - type: web
+    name: ota-analyzer-n8n
+    env: docker
+    dockerfilePath: ./Dockerfile.n8n
+    envVars:
+      - key: N8N_BASIC_AUTH_ACTIVE
+        value: true
+      - key: N8N_BASIC_AUTH_USER
+        value: admin
+      - key: N8N_BASIC_AUTH_PASSWORD
+        sync: false
+      - key: N8N_ENCRYPTION_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: WEBHOOK_URL
+        value: https://ota-analyzer-n8n.onrender.com
+    healthCheckPath: /
+    autoDeploy: true
+
+  # PostgreSQL Database
+  - type: pserv
+    name: ota-analyzer-db
+    env: postgresql
+    plan: free
+    envVars:
+      - key: POSTGRES_PASSWORD
+        sync: false
+    ipAllowList: []
+
+  # Redis Cache
+  - type: redis
+    name: ota-analyzer-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru 

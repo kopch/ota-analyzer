@@ -1,0 +1,42 @@
+FROM n8nio/n8n:latest
+
+# Install additional dependencies
+RUN apt-get update && apt-get install -y \
+    chromium \
+    chromium-driver \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV N8N_HOST=0.0.0.0
+ENV N8N_PORT=5678
+ENV N8N_PROTOCOL=https
+ENV N8N_USER_MANAGEMENT_DISABLED=false
+ENV N8N_BASIC_AUTH_ACTIVE=true
+ENV N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+ENV CHROME_BIN=/usr/bin/chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
+# Create n8n user
+RUN useradd -m -u 1000 n8n
+
+# Set working directory
+WORKDIR /home/n8n
+
+# Copy custom workflows
+COPY n8n-workflows/ /home/n8n/.n8n/workflows/
+
+# Set permissions
+RUN chown -R n8n:n8n /home/n8n
+
+# Expose port
+EXPOSE 5678
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:5678/healthz || exit 1
+
+# Start n8n
+USER n8n
+CMD ["n8n"] 
